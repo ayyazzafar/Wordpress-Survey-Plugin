@@ -52,18 +52,24 @@ function submit_survey_form()
   			$result= $wpdb->insert('az_survey_questions', array('survey_id'=>$survey_id, 'question'=> $question, 'orders'=>$question_order));
   			$question_id =  $wpdb->insert_id;
   			echo $wpdb->last_error;
+
+  			$arrAnswers = $_POST['answers'];
   			if($result)
   			{
-  				$arrAnswers = $_POST['answers'];
-				foreach($arrAnswers[$question_index] as $answer_index => $answer)
-				{
-					$answer_type = $_POST['answer_types'][$question_index][$answer_index];
-					$answer_order = $_POST['answer_order'][$question_index][$answer_index]; 
+  				if(isset($arrAnswers[$question_index]))
+  				{
+  					foreach($arrAnswers[$question_index] as $answer_index => $answer)
+					{
+						$answer_type = $_POST['answer_types'][$question_index][$answer_index];
+						$answer_order = $_POST['answer_order'][$question_index][$answer_index]; 
 
-					$sql="insert into  az_survey_answers (question_id, answer, answer_type) values($question_id, '$answer', '$answer_type')";
-  					$result= $wpdb->insert('az_survey_answers', array('question_id'=>$question_id, 'answer'=> $answer, 'answer_type'=>$answer_type, 'orders'=>$answer_order));
-  					echo $wpdb->last_error;
-				}
+						$sql="insert into  az_survey_answers (question_id, answer, answer_type) values($question_id, '$answer', '$answer_type')";
+	  					$result= $wpdb->insert('az_survey_answers', array('question_id'=>$question_id, 'answer'=> $answer, 'answer_type'=>$answer_type, 'orders'=>$answer_order));
+	  					echo $wpdb->last_error;
+					}
+  				}
+
+				
 
 				
   			}
@@ -201,7 +207,7 @@ function sfp_edit_survey_form()
 
 function update_survey_form()
 {
-	
+	//print_r($_POST); die;
 	$title = $_POST['title'];
 	$survey_form_id = $_POST['survey_form_id'];
 
@@ -214,6 +220,9 @@ function update_survey_form()
   		$arrQuestions = $_POST['questions'];
   		$arrQuestion_id = $_POST['question_id'];
 		///print_r($_POST); die;
+		if(!count($arrQuestions)){
+			echo 1; wp_die();
+			return false; }
 		foreach($arrQuestions as $question_index => $question)
 		{
 			// inserting questions in database
@@ -241,7 +250,7 @@ function update_survey_form()
 						$answer_type = $_POST['answer_types'][$question_index][$answer_index];
 						$answer_id = $_POST['answer_id'][$question_index][$answer_index];
 						$answer_order = $_POST['answer_order'][$question_index][$answer_index]; 
-
+						//echo $answer_id." ";
 						if($answer_id==0)
 						{
 							//print_r($_POST['answer_order']); echo 'Question index: '.$question_index.' Answer Index: '.$answer_index;

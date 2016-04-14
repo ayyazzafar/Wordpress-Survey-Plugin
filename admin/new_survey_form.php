@@ -30,9 +30,9 @@ dashicons-plus-alt"></i> New Survey Form</h2>
     </div>
     <script>
     $ = jQuery;
-	var delete_answer_link ='<a href="javascript:void(0);" style="text-decoration:none" onclick="delete_answer(0, this)"><span class="dashicons dashicons-trash"></span></a> ';
+	var delete_answer_link ='<a href="javascript:void(0);" style="text-decoration:none" onclick="delete_answer(this)"><span class="dashicons dashicons-trash"></span></a> ';
 
-	var delete_question_link ='<a href="javascript:void(0);" style="text-decoration:none" onclick="delete_question(0, this)"><span class="dashicons dashicons-trash"></span></a> | <a title="Duplicate" onclick="duplicate_question(event, this)" href="javascript:void(0);"  style="text-decoration:none" onclick="delete_question( this)"><span class="dashicons dashicons-admin-page"></span></a>';
+	var delete_question_link ='<a href="javascript:void(0);" style="text-decoration:none" onclick="delete_question(this)"><span class="dashicons dashicons-trash"></span></a> | <a title="Duplicate" onclick="duplicate_question(event, this)" href="javascript:void(0);"  style="text-decoration:none"><span class="dashicons dashicons-admin-page"></span></a>';
 
 
 	function delete_answer( link)
@@ -40,8 +40,8 @@ dashicons-plus-alt"></i> New Survey Form</h2>
 		var question_index = $(link).closest('.question').index();
 		var answer = $(link).closest('.answer');
 		var answer_id = answer.find('input[name="answer_id['+question_index+'][]"]').val();
-
-		if(answer_id!='0')
+        var ajax_url 		= '<?php echo admin_url('admin-ajax.php'); ?>';
+		if(answer_id!='0' && answer_id!=undefined)
 		{
 			$.ajax({
 				data:{answer_id:answer_id, action:'delete_survey_answer'},
@@ -88,8 +88,9 @@ dashicons-plus-alt"></i> New Survey Form</h2>
 		var question = $(link).closest('.question');
 		var question_id = question.find('input[name="question_id[]"]').val();
 		var question_index = $(link).closest('.question').index();
-
-		if(question_id!='0')
+        var ajax_url 		= '<?php echo admin_url('admin-ajax.php'); ?>';
+       
+		if(question_id!='0' && question_id!=undefined)
 		{
 			$.ajax({
 				data:{question_id:question_id, action:'delete_survey_question'},
@@ -176,7 +177,7 @@ dashicons-plus-alt"></i> New Survey Form</h2>
 					</div>
 				</div>'); ?>');
 		$("#questions_container").append(question);
-
+		question.children('.question_order').val((question.index()+1));
 		$('body, html').animate({ scrollTop: $(question).offset().top }, 1000);
 		$(question).find('textarea').focus();
 	});
@@ -189,19 +190,42 @@ dashicons-plus-alt"></i> New Survey Form</h2>
 		var total_answers = parseInt($(this).closest('.question').find('.answers_container .answer').length);
 		var answer = $('<div class="answer">'+'<h4>Answer '+(total_answers+1)+':</h4> <select onchange="" name="answer_types['+question_index+'][]"><option value="single">Single</option><option value="multiple">Multiple</option><option value="open">Open</option></select><input type="text" class="" name="answers['+question_index+'][]" /> '+delete_answer_link+'  <input type="text" value="0" name="answer_order['+question_index+'][]" class="answer_order"></div>');
 		$(this).closest('.question').find('.answers_container').append(answer);
+		answer.children('.answer_order').val((answer.index()+1));
 		$('body, html').animate({ scrollTop: $(answer).offset().top }, 1000);
 		$(answer).find('input[type=text]:first').focus();
 	});
 
 
 		function re_order_questions()
-	{
-		$('.question').each(function(index){
-						
-						$(this).children('h2').html('Question '+(index+1)+" ");
-					});
-	}
+		{
+			$('.question').each(function(questionIndex){
+			
+				var question = $(this);
 
+				question.children('h2').html('Question '+(questionIndex+1)+" ");
+
+				
+				question.find('.answer input[name*="answers"]').each(function(index){
+					$(this).attr('name', 'answers['+(questionIndex)+'][]');
+				});
+
+				question.find('.answer input[name*="answer_id"]').each(function(index){
+					$(this).attr('name', 'answer_id['+(questionIndex)+'][]');
+				});
+
+
+
+				question.find('.answer select').each(function(index){
+					$(this).attr('name', 'answer_types['+(questionIndex)+'][]');
+				});
+
+
+				question.find('.answer .answer_order').each(function(index){
+					$(this).attr('name', 'answer_order['+(questionIndex)+'][]');
+				});
+
+			});
+		}
 
 	function duplicate_question(e, link)
 	{
@@ -211,26 +235,14 @@ dashicons-plus-alt"></i> New Survey Form</h2>
 		question.find('input[name="question_id[]"]').val(0);
 		
 		$('#questions_container').append(question);
-		question.find('.answer input[name*="answers"]').each(function(index){
-			$(this).attr('name', 'answers['+($(".question").length-1)+'][]');
-		});
+		
+		var new_question_order = parseInt(question.children('.question_order').val())+1;
+		question.children('.question_order').val(new_question_order);
 
 		question.find('.answer input[name*="answer_id"]').each(function(index){
-			$(this).attr('name', 'answer_id['+($(".question").length-1)+'][]');
-			$(this).val(0);
-		});
-
-		question.find('.answer input[name*="answer_order"]').each(function(index){
-			$(this).attr('name', 'answer_order['+($(".question").length-1)+'][]');
-			$(this).val(0);
-		});
-
-
-		question.find('.answer select').each(function(index){
-			$(this).attr('name', 'answer_types['+($(".question").length-1)+'][]');
-		});
-
-
+				$(this).attr('name', 'answer_id['+(questionIndex)+'][]');
+				$(this).val(0);
+			});
 		$('body, html').animate({ scrollTop: $(question).offset().top }, 1000);
 		re_order_questions();
 

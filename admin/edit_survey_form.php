@@ -115,7 +115,13 @@ dashicons-plus-alt"></i> Edit Survey Form</h2>
 			}
 			else 
 			{
-				$("#success_msg").fadeIn(); 
+				//   $("html, body").animate({ scrollTop: 0 }, "slow");
+
+				// $("#success_msg").fadeIn(); 
+
+				// setTimeout(function(){$("#success_msg").fadeOut(); }, 2000);
+
+				location.reload();
 			}
 			
 			
@@ -139,6 +145,7 @@ dashicons-plus-alt"></i> Edit Survey Form</h2>
 					<a href="#" style="float:right" class="add_answer_btn">+ Add Answer</a>
 				</div>'); ?>');
 		$("#questions_container").append(question);
+		question.children('.question_order').val((question.index()+1));
 		$('body, html').animate({ scrollTop: $(question).offset().top }, 1000);
 		$(question).find('textarea').focus();
 
@@ -155,6 +162,7 @@ dashicons-plus-alt"></i> Edit Survey Form</h2>
 		var total_answers = parseInt($(this).closest('.question').find('.answers_container .answer').length);//alert(total_answers);
 		var answer = $('<div class="answer">'+'<h4>Answer '+(total_answers+1)+':</h4><input type="hidden" name="answer_id['+question_index+'][]" value="0" /><select onchange="" name="answer_types['+question_index+'][]"><option value="single">Single</option><option value="multiple">Multiple</option><option value="open">Open</option></select><input type="text" class="" name="answers['+question_index+'][]" />'+delete_answer_link+' <input type="text" value="0" name="answer_order['+question_index+'][]" class="answer_order"></div>');
 		$(this).closest('.question').find('.answers_container').append(answer);
+		answer.children('.answer_order').val((answer.index()+1));
 		$('body, html').animate({ scrollTop: $(answer).offset().top }, 1000);
 		$(answer).find('input[type=text]:first').focus();
 	});
@@ -251,10 +259,32 @@ dashicons-plus-alt"></i> Edit Survey Form</h2>
 
 	function re_order_questions()
 	{
-		$('.question').each(function(index){
-						
-						$(this).children('h2').html('Question '+(index+1)+" ");
-					});
+		$('.question').each(function(questionIndex){
+
+			var question = $(this);
+
+			question.children('h2').html('Question '+(questionIndex+1)+" ");
+
+			
+			question.find('.answer input[name*="answers"]').each(function(index){
+				$(this).attr('name', 'answers['+(questionIndex)+'][]');
+			});
+
+			question.find('.answer input[name*="answer_id"]').each(function(index){
+				$(this).attr('name', 'answer_id['+(questionIndex)+'][]');
+			});
+
+
+			question.find('.answer select').each(function(index){
+				$(this).attr('name', 'answer_types['+(questionIndex)+'][]');
+			});
+
+
+			question.find('.answer .answer_order').each(function(index){
+				$(this).attr('name', 'answer_order['+(questionIndex)+'][]');
+			});
+
+		});
 	}
 
 
@@ -266,24 +296,15 @@ dashicons-plus-alt"></i> Edit Survey Form</h2>
 		question.find('input[name="question_id[]"]').val(0);
 		
 		$('#questions_container').append(question);
-		question.find('.answer input[name*="answers"]').each(function(index){
-			$(this).attr('name', 'answers['+($(".question").length-1)+'][]');
-		});
+
+		var new_question_order = parseInt(question.children('.question_order').val())+1;
+		question.children('.question_order').val(new_question_order);
 
 		question.find('.answer input[name*="answer_id"]').each(function(index){
-			$(this).attr('name', 'answer_id['+($(".question").length-1)+'][]');
-			$(this).val(0);
-		});
-
-
-		question.find('.answer select').each(function(index){
-			$(this).attr('name', 'answer_types['+($(".question").length-1)+'][]');
-		});
-
-
-		question.find('.answer .answer_order').each(function(index){
-			$(this).attr('name', 'answer_order['+($(".question").length-1)+'][]');
-		});
+				$(this).attr('name', 'answer_id['+(index)+'][]');
+				$(this).val(0);
+			});
+		re_order_questions();
 
 
 		$('body, html').animate({ scrollTop: $(question).offset().top }, 1000);
