@@ -10,3 +10,4 @@ Features:
 - Delete or Edit survey forms, questions or answers
 - Answer Types: Radio, Checkbox and Open Questions
 - Easy to use using Short Code 
+- Short Code to display stats for every survey form.
