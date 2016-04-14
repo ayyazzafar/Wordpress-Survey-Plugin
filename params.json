@@ -1,0 +1,6 @@
+{
+  "name": "Wordpress-survey-plugin",
+  "tagline": "",
+  "body": "# Wordpress-Survey-Plugin\r\n\r\nPlugin to create Survey Form and display using short code.\r\n\r\nFeatures:\r\n- Unlimited Survey Forms\r\n- Unlimited Questions\r\n- Unlimited Answers\r\n- Cureate Duplicate of Questions (including their answers) or just Answers\r\n- Delete or Edit survey forms, questions or answers\r\n- Answer Types: Radio, Checkbox and Open Questions\r\n- Easy to use using Short Code \r\n- Short Code to display stats for every survey form.\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
